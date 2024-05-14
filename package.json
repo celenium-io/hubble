@@ -1,0 +1,27 @@
+{
+	"name": "hubble",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"d3": "^7.9.0",
+		"focus-trap": "^7.5.4",
+		"luxon": "^3.4.4",
+		"pinia": "^2.1.7",
+		"sass": "^1.77.0",
+		"sass-loader": "^14.2.1",
+		"three": "^0.164.1",
+		"three-globe": "^2.31.0",
+		"vue": "^3.4.21",
+		"vue-router": "^4.3.0"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^5.0.4",
+		"vite": "^5.2.8"
+	}
+}
