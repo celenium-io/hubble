@@ -1,4 +1,4 @@
-# Hubble - Celestia Network Dashboard
+# 🔭 Hubble - Celestia Network Dashboard
 
 Explore the dynamic landscape of the Celestia Network.
 
