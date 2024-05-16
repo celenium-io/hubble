@@ -2,7 +2,7 @@
 
 Explore the dynamic landscape of the Celestia Network.
 
-## What you gonna do with it?
+## Features
 
 - View a representation of the Celestia Globe, highlighting its diverse components and entities.
 - Review recent network activity.
