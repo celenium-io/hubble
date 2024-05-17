@@ -1,11 +1,13 @@
 <script setup>
 /** Vendor */
-import { ref, onMounted } from "vue"
+import { ref, onMounted, useCssModule } from "vue"
 import { DateTime } from "luxon"
 import * as d3 from "d3"
 
 /** API */
 import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
+
+const cssModule = useCssModule()
 
 const widgetEl = ref()
 const chartEl = ref()
@@ -17,7 +19,7 @@ const buildChart = () => {
 	const data = priceSeries.value
 
 	const width = widgetEl.value.wrapper.getBoundingClientRect().width
-	const height = 140
+	const height = 120
 	const marginTop = 0
 	const marginRight = 0
 	const marginBottom = 0
@@ -61,14 +63,24 @@ const buildChart = () => {
 	/** Chart Line */
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--txt-secondary)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("d", line(data.slice(0, data.length - 1)))
+
+	const svgDefs = svg.append("defs")
+	const mainGradient = svgDefs.append("linearGradient").attr("id", "mainGradient").attr("gradientTransform", "rotate(90)")
+	mainGradient.append("stop").attr("class", cssModule["stop-left"]).attr("offset", "0")
+	mainGradient.append("stop").attr("class", cssModule["stop-right"]).attr("offset", "1")
+
+	svg.append("path")
+		.classed(cssModule.filled, true)
+		.attr("d", line(data) + `L500,140L0,140L0,${y(data[0].value)}`)
+
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--txt-secondary)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
@@ -107,7 +119,7 @@ onMounted(async () => {
 			<Text size="18" weight="600" color="primary" mono>${{ price.close }}</Text>
 		</Flex>
 
-		<div ref="chartEl" />
+		<div ref="chartEl" :class="$style.chart" />
 	</Flex>
 </template>
 
@@ -117,6 +129,18 @@ onMounted(async () => {
 
 	background: var(--card-background);
 
-	padding: 20px 20px 0 20px;
+	padding: 20px;
+}
+
+.stop-left {
+	stop-color: rgba(255, 255, 255, 10%);
+}
+
+.stop-right {
+	stop-color: rgba(255, 255, 255, 0%);
+}
+
+.filled {
+	fill: url(#mainGradient);
 }
 </style>

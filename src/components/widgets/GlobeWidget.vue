@@ -1,14 +1,18 @@
 <script setup>
 /** Vendor */
 import { ref } from "vue"
+import { DateTime } from "luxon"
 
 /** Config */
-import { useServerURL } from "@/services/config"
+import { useServerURL, useSocketURL } from "@/services/config"
 
 /** Local Components */
 import Globe from "../local/Globe.vue"
 import Feed from "../local/Feed.vue"
 import TPM from "../local/TPM.vue"
+
+/** API */
+import { fetchThxByHeight } from "@/services/api/tx"
 
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
@@ -19,12 +23,34 @@ import { useAppStore } from "@/stores/app"
 const appStore = useAppStore()
 
 const globeWidgetEl = ref(null)
+
+const txs = ref([])
+
+const socket = new WebSocket(useSocketURL())
+
+socket.addEventListener("open", (e) => {
+	socket.send(
+		JSON.stringify({
+			method: "subscribe",
+			body: {
+				channel: "blocks",
+			},
+		}),
+	)
+})
+
+socket.addEventListener("message", async (e) => {
+	const data = JSON.parse(e.data)
+	if (data.channel === "blocks") {
+		txs.value = await fetchThxByHeight({ height: data.body.height, from: parseInt(DateTime.fromISO(data.body.time) / 1000) })
+	}
+})
 </script>
 
 <template>
 	<Flex ref="globeWidgetEl" justify="between" :class="$style.wrapper">
-		<!-- <img src="/stars.jpg" :class="$style.stars" /> -->
-		<Globe v-if="globeWidgetEl" :parent="globeWidgetEl?.wrapper" />
+		<Globe v-if="globeWidgetEl" :parent="globeWidgetEl?.wrapper" :txs="txs" />
+		<div :class="$style.atm" />
 
 		<Flex direction="column" gap="40" :class="$style.controls">
 			<Flex direction="column" gap="20">
@@ -116,7 +142,7 @@ const globeWidgetEl = ref(null)
 				</Dropdown>
 			</Flex>
 
-			<Feed />
+			<Feed :txs="txs" />
 
 			<TPM />
 		</Flex>
@@ -137,14 +163,77 @@ const globeWidgetEl = ref(null)
 	padding: 20px;
 }
 
-.stars {
-	width: 100%;
-	height: 100%;
+.atm {
+	width: 920px;
+	height: 920px;
 	position: absolute;
-	top: 0;
 	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
 
-	opacity: 0.3;
+	transform-origin: center;
+	transform: rotate(-52deg);
+
+	border-radius: 50%;
+
+	box-shadow: #1f87dd52 -0.8em 0 5.8em -1.5em inset;
+
+	pointer-events: none;
+
+	animation: fhl 20s ease infinite;
+	animation-delay: 10s;
+}
+.atm {
+	box-shadow: #2374ffe0 -2em 0 3em -0.5em inset, #000e1ad9 -3em 0 4em -1em inset, #007aec30 -60em 0 20em -40em inset;
+	mix-blend-mode: color-dodge;
+	color: #4c86e99e;
+	filter: blur(0.2em) drop-shadow(0.3em 0 4.5em);
+	touch-action: none;
+}
+
+.atm::before,
+.atm::after {
+	content: "";
+	display: block;
+	height: 100%;
+	border-radius: 50%;
+	box-shadow: #2d8de7 -1.5em 0 1em -1em inset;
+	mix-blend-mode: color-dodge;
+}
+.atm::after {
+	margin-top: -100%;
+}
+
+@keyframes fhl {
+	0% {
+		opacity: 1;
+		transform: rotate(-52deg) scale(1);
+	}
+
+	15% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0;
+		transform: rotate(-52deg) scale(2);
+	}
+
+	32% {
+		opacity: 0;
+	}
+
+	40% {
+		opacity: 1;
+		transform: rotate(-52deg) scale(1);
+	}
+
+	100% {
+		opacity: 1;
+		transform: rotate(-52deg) scale(1);
+	}
 }
 
 .controls {

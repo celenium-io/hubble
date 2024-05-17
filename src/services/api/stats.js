@@ -37,3 +37,17 @@ export const fetchPriceSeries = async ({ timeframe }) => {
 		console.error(error)
 	}
 }
+
+export const fetchGasPriceSeries = async ({ timeframe, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/series/gas_price/${timeframe}`)
+
+		url.searchParams.append("from", from)
+		url.searchParams.append("to", to)
+
+		const data = await fetch(url.href).then((r) => r.json())
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

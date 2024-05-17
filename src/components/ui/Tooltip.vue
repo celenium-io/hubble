@@ -22,6 +22,8 @@ const props = defineProps({
 
 	textAlign: { type: String, default: "center" },
 	wide: { type: Boolean, default: null },
+	tall: { type: Boolean, default: null },
+	alignEnd: { type: Boolean, default: null },
 	disabled: { type: Boolean, default: false },
 	delay: { type: [String, Number], default: 0 },
 })
@@ -160,7 +162,11 @@ const handleMouseLeave = () => {
 		:class="$style.wrapper"
 		:style="{ width: wide && '100%' }"
 	>
-		<div ref="trigger" :class="$style.trigger" :style="{ width: wide && '100%' }">
+		<div
+			ref="trigger"
+			:class="$style.trigger"
+			:style="{ width: wide && '100%', height: tall && '100%', alignItems: alignEnd && 'flex-end' }"
+		>
 			<slot />
 		</div>
 

@@ -15,6 +15,7 @@ const appStore = useAppStore()
 
 const rollups = ref([])
 const total = ref(0)
+const totalSize = ref(0)
 
 const availableSize = ref(0)
 
@@ -26,6 +27,8 @@ const getData = async () => {
 
 	const rawCount = await fetchRollupsCount()
 	total.value = rawCount
+
+	totalSize.value = rawRollups.reduce((acc, curr) => (acc += curr.size), 0)
 }
 
 onMounted(async () => {
@@ -61,7 +64,7 @@ const onResize = () => {
 
 		<Flex align="center" gap="40">
 			<Flex direction="column" gap="8">
-				<Text size="24" weight="500" color="primary" mono>13.23 Gb</Text>
+				<Text size="24" weight="500" color="primary" mono>{{ formatBytes(totalSize) }}</Text>
 				<Text size="14" weight="500" color="tertiary">Total Size</Text>
 			</Flex>
 

@@ -3,6 +3,7 @@
 import GlobeWidget from "@/components/widgets/GlobeWidget.vue"
 import CelestiaPriceWidget from "@/components/widgets/CelestiaPriceWidget.vue"
 import BlobsFlowWidget from "@/components/widgets/BlobsFlowWidget.vue"
+import GasPriceWidget from "@/components/widgets/GasPriceWidget.vue"
 import ActiveRollupsWidget from "@/components/widgets/ActiveRollupsWidget.vue"
 import StatsWidget from "@/components/widgets/StatsWidget.vue"
 </script>
@@ -15,6 +16,7 @@ import StatsWidget from "@/components/widgets/StatsWidget.vue"
 			<Flex gap="20" :class="$style.bottom">
 				<CelestiaPriceWidget />
 				<BlobsFlowWidget />
+				<GasPriceWidget />
 			</Flex>
 		</Flex>
 

@@ -32,6 +32,8 @@ export const useServerURL = () => {
 }
 
 export const useSocketURL = () => {
+	const appStore = useAppStore()
+
 	switch (appStore.network) {
 		case "mainnet":
 			return endpoints.wss.mainnet

@@ -42,8 +42,8 @@ onMounted(async () => {
 	background: var(--op-10);
 
 	&.active {
-		background: var(--green);
-		box-shadow: 0 0 10px rgb(10, 222, 113, 70%);
+		background: var(--txt-secondary);
+		box-shadow: 0 0 10px rgba(255, 255, 255, 50%);
 	}
 }
 

@@ -70,15 +70,21 @@ watch(
 
 <style module>
 .wrapper {
+	position: relative;
 	width: 100%;
 
 	background: var(--card-background);
+	overflow: hidden;
 
 	padding: 20px;
 }
 
 .days {
-	height: 100%;
+	position: absolute;
+	left: 20px;
+	bottom: 20px;
+
+	height: 120px;
 }
 
 .day {
@@ -92,8 +98,8 @@ watch(
 	background: var(--op-30);
 
 	&.active {
-		background: var(--green);
-		box-shadow: 0 0 10px rgba(10, 222, 113, 40%);
+		background: var(--txt-secondary);
+		box-shadow: 0 0 10px rgba(255, 255, 255, 50%);
 	}
 }
 </style>
