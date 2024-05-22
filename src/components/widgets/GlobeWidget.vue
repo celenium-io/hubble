@@ -49,7 +49,10 @@ const startWs = () => {
 		}
 	})
 
-	socket.value.addEventListener("close", () => {})
+	socket.value.addEventListener("close", () => {
+		socket.value = null
+		setTimeout(startWs, 1_000)
+	})
 }
 
 onMounted(() => {
@@ -72,11 +75,8 @@ watch(
 	() => appStore.network,
 	() => {
 		socket.value.close()
-		socket.value = null
 
 		txs.value = []
-
-		startWs()
 	},
 )
 </script>
