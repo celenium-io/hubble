@@ -14,7 +14,7 @@ export const getCeleniumURL = (network) => {
 		case "mainnet":
 			return "https://celenium.io"
 
-		case "mocha-4":
+		case "mocha":
 			return "https://mocha.celenium.io"
 
 		case "arabica":
