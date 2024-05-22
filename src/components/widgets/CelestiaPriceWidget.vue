@@ -4,8 +4,15 @@ import { ref, onMounted, useCssModule } from "vue"
 import { DateTime } from "luxon"
 import * as d3 from "d3"
 
+/** Services */
+import { abbreviate } from "@/services/amounts"
+
 /** API */
 import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
+
+/** Store */
+import { useAppStore } from "@/stores/app"
+const appStore = useAppStore()
 
 const cssModule = useCssModule()
 
@@ -110,10 +117,9 @@ onMounted(async () => {
 		<Flex wide justify="between">
 			<Flex direction="column" gap="8">
 				<Text size="16" weight="500" color="primary">Celestia Price</Text>
-				<Flex align="center" gap="12">
-					<Text size="13" weight="500" color="tertiary">Market Cap: $1.8B</Text>
-					<Text size="13" weight="500" color="tertiary">Volume (24H): $108M</Text>
-				</Flex>
+				<Text size="13" weight="500" color="tertiary">
+					Market Cap: ${{ abbreviate((appStore.head?.total_supply / 1_000_000) * price.close) }}
+				</Text>
 			</Flex>
 
 			<Text size="18" weight="600" color="primary" mono>${{ price.close }}</Text>

@@ -11,6 +11,12 @@ import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js"
 /** Services */
 import { getStars } from "@/services/globe/stars"
 
+/** Store */
+import { useAppStore } from "@/stores/app"
+const appStore = useAppStore()
+
+import icons from "@/assets/icons.json"
+
 const cssModule = useCssModule()
 
 const props = defineProps({
@@ -43,13 +49,15 @@ const MAX_RADIUS = 5
 const PROPAGATION_SPEED = 2
 const NUM_RINGS = 2
 
+const getIcon = () => {}
+
 onMounted(() => {
 	window.addEventListener("resize", onResize)
 
 	parentClientRect.value = props.parent.getBoundingClientRect()
 
 	const markerSvg = `<div class=${cssModule.popupWrapper}>
-			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2Zm-.773 6.569l-2.015 1.605c-.845.673-1.268 1.01-1.185 1.385l.004.019c.094.373.63.517 1.702.804c.595.16.893.24 1.033.465l.007.012c.135.229.058.515-.095 1.087l-.04.15c-.426 1.586-.638 2.379-.229 2.635c.41.256 1.06-.262 2.363-1.3l2.015-1.604c.846-.674 1.268-1.01 1.186-1.386l-.004-.019c-.095-.373-.63-.517-1.702-.804c-.595-.16-.893-.24-1.033-.465l-.007-.012c-.135-.228-.058-.514.095-1.086l.04-.15c.425-1.586.638-2.38.229-2.636c-.41-.256-1.061.263-2.364 1.3Z" clip-rule="evenodd"/></svg>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill-rule="evenodd" d="$ICON" clip-rule="evenodd"/></svg>
 			<div class=${cssModule.content}>
 				<div class=${cssModule.title}> New Transaction <div>$HASH</div></div>
 				<div class=${cssModule.subtitle}> Successfull transaction signed by $SIGNER</div>
@@ -87,6 +95,12 @@ onMounted(() => {
 			popup = popup.replace("$SIGNER", d.tx.signers[0].slice(-4))
 			popup = popup.replace("$MSG_TYPE", d.tx.message_types[0])
 			popup = popup.replace("$WHEN", DateTime.fromISO(d.tx.time).setLocale("en").toFormat("ff"))
+			popup = popup.replace(
+				"$ICON",
+				(d.tx.message_types.includes("MsgSend") && icons["coins"]) ||
+					(d.tx.message_types.includes("MsgPayForBlobs") && icons["blob"]) ||
+					icons["zap"],
+			)
 			el.innerHTML = popup
 
 			return el
@@ -184,6 +198,16 @@ watch(
 	},
 )
 
+watch(
+	() => appStore.network,
+	() => {
+		globe.arcsData([])
+		globe.ringsData([])
+		globe.pointsData([])
+		globe.htmlElementsData([])
+	},
+)
+
 const animate = () => {
 	controls.update()
 	renderers.forEach((r) => r.render(scene, camera))
@@ -218,13 +242,15 @@ const onResize = () => {
 
 .popupWrapper {
 	display: flex;
-	gap: 8px;
+	gap: 6px;
 
 	animation: test 5s ease;
 	animation-delay: 19s;
 
 	& svg {
 		fill: var(--txt-tertiary);
+
+		margin-top: 2px;
 	}
 }
 

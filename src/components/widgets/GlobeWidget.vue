@@ -1,6 +1,6 @@
 <script setup>
 /** Vendor */
-import { ref } from "vue"
+import { ref, watch, onMounted } from "vue"
 import { DateTime } from "luxon"
 
 /** Config */
@@ -26,33 +26,69 @@ const globeWidgetEl = ref(null)
 
 const txs = ref([])
 
-const socket = new WebSocket(useSocketURL())
+const socket = ref()
 
-socket.addEventListener("open", (e) => {
-	socket.send(
-		JSON.stringify({
-			method: "subscribe",
-			body: {
-				channel: "blocks",
-			},
-		}),
-	)
+const startWs = () => {
+	socket.value = new WebSocket(useSocketURL())
+
+	socket.value.addEventListener("open", (e) => {
+		socket.value.send(
+			JSON.stringify({
+				method: "subscribe",
+				body: {
+					channel: "blocks",
+				},
+			}),
+		)
+	})
+
+	socket.value.addEventListener("message", async (e) => {
+		const data = JSON.parse(e.data)
+		if (data.channel === "blocks") {
+			txs.value = await fetchThxByHeight({ height: data.body.height, from: parseInt(DateTime.fromISO(data.body.time) / 1000) })
+		}
+	})
+
+	socket.value.addEventListener("close", () => {})
+}
+
+onMounted(() => {
+	startWs()
 })
 
-socket.addEventListener("message", async (e) => {
-	const data = JSON.parse(e.data)
-	if (data.channel === "blocks") {
-		txs.value = await fetchThxByHeight({ height: data.body.height, from: parseInt(DateTime.fromISO(data.body.time) / 1000) })
-	}
-})
+watch(
+	() => appStore.head,
+	async () => {
+		if (txs.value.length) return
+
+		txs.value = await fetchThxByHeight({
+			height: appStore.head.last_height,
+			from: parseInt(DateTime.fromISO(appStore.head.last_time) / 1000),
+		})
+	},
+)
+
+watch(
+	() => appStore.network,
+	() => {
+		socket.value.close()
+		socket.value = null
+
+		txs.value = []
+
+		startWs()
+	},
+)
 </script>
 
 <template>
 	<Flex ref="globeWidgetEl" justify="between" :class="$style.wrapper">
 		<Globe v-if="globeWidgetEl" :parent="globeWidgetEl?.wrapper" :txs="txs" />
-		<div :class="$style.atm" />
+		<div :class="$style.atm_wrapper">
+			<div :class="$style.atm" />
+		</div>
 
-		<Flex direction="column" gap="40" :class="$style.controls">
+		<Flex direction="column" gap="24" :class="$style.controls">
 			<Flex direction="column" gap="20">
 				<Flex direction="column" gap="12">
 					<svg width="352" height="22" viewBox="0 0 352 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -82,24 +118,24 @@ socket.addEventListener("message", async (e) => {
 					</svg>
 
 					<Flex align="center" gap="12">
-						<Tooltip position="start">
-							<Flex align="center" gap="8">
-								<Text size="14" weight="500" color="tertiary"> Celenium API: </Text>
+						<Flex align="center" gap="8">
+							<Text size="14" weight="500" color="tertiary"> Celenium API: </Text>
 
-								<Flex align="center" gap="4">
-									<Icon name="zap-circle" size="14" color="green" />
-									<Text size="14" weight="600" color="green"> Stable </Text>
-								</Flex>
+							<Flex align="center" gap="4">
+								<Icon name="zap-circle" size="14" color="green" />
+								<Text size="14" weight="600" color="green"> Stable </Text>
 							</Flex>
-
-							<template #content> {{ useServerURL() }} </template>
-						</Tooltip>
+						</Flex>
 
 						<div :class="$style.dot" />
 
-						<Text size="14" weight="500" color="tertiary">
-							Network: <Text color="secondary" style="text-transform: capitalize">{{ appStore.network }}</Text>
-						</Text>
+						<Flex align="center" gap="8">
+							<Text size="14" weight="500" color="tertiary"> Socket: </Text>
+							<Flex align="center" gap="4">
+								<Icon name="check-circle" size="14" color="secondary" />
+								<Text size="14" weight="600" color="secondary"> Connected </Text>
+							</Flex>
+						</Flex>
 					</Flex>
 				</Flex>
 
@@ -163,15 +199,23 @@ socket.addEventListener("message", async (e) => {
 	padding: 20px;
 }
 
-.atm {
-	width: 920px;
-	height: 920px;
+.atm_wrapper {
 	position: absolute;
 	left: 0;
 	right: 0;
 	top: 0;
 	bottom: 0;
-	margin: auto;
+
+	pointer-events: none;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.atm {
+	aspect-ratio: auto 1/1;
+	height: 90%;
 
 	transform-origin: center;
 	transform: rotate(-52deg);
@@ -179,8 +223,6 @@ socket.addEventListener("message", async (e) => {
 	border-radius: 50%;
 
 	box-shadow: #1f87dd52 -0.8em 0 5.8em -1.5em inset;
-
-	pointer-events: none;
 
 	animation: fhl 20s ease infinite;
 	animation-delay: 10s;

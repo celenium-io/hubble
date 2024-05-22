@@ -20,6 +20,8 @@ const when = ref(0)
 const getHead = async () => {
 	head.value = await fetchHead()
 	when.value = new Date().getTime()
+
+	appStore.head = head.value
 }
 
 onMounted(async () => {
@@ -76,7 +78,9 @@ watch(
 			</Flex>
 
 			<Flex align="center" justify="between" :class="$style.bottom">
-				<Text size="13" weight="500" color="tertiary">Celestia Metrics by <a href="celenium.io" target="_blank">Celenium</a></Text>
+				<Text size="13" weight="500" color="tertiary">
+					Celestia Metrics by <a href="https://celenium.io" target="_blank">Celenium</a>
+				</Text>
 				<Text size="13" weight="500" color="support">Updated {{ DateTime.fromMillis(when).toFormat("T") }}</Text>
 			</Flex>
 		</Flex>

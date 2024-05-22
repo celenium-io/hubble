@@ -8,3 +8,16 @@ export const formatBytes = (bytes, decimals = 2) => {
 
 	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export const getCeleniumURL = (network) => {
+	switch (network) {
+		case "mainnet":
+			return "https://celenium.io"
+
+		case "mocha-4":
+			return "https://mocha.celenium.io"
+
+		case "arabica":
+			return "https://arabica.celenium.io"
+	}
+}

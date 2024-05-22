@@ -4,7 +4,7 @@ import { ref, watch, onMounted, onBeforeUnmount } from "vue"
 import { DateTime } from "luxon"
 
 /** Utils */
-import { formatBytes } from "@/services/general"
+import { formatBytes, getCeleniumURL } from "@/services/general"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
@@ -75,22 +75,28 @@ const onResize = () => {
 		</Flex>
 
 		<Flex ref="rollupsEl" direction="column" gap="8" :class="$style.rollups">
-			<Flex v-for="(rollup, idx) in rollups.slice(0, availableSize)" align="center" justify="between" :class="$style.rollup">
-				<Flex align="center" gap="12">
-					<Text size="16" weight="500" color="tertiary" :class="$style.counter">{{ idx + 1 }}</Text>
+			<a
+				v-for="(rollup, idx) in rollups.slice(0, availableSize)"
+				:href="`${getCeleniumURL(appStore.network)}/rollup/${rollup.slug}`"
+				target="_blank"
+			>
+				<Flex align="center" justify="between" :class="$style.rollup">
+					<Flex align="center" gap="12">
+						<Text size="16" weight="500" color="tertiary" :class="$style.counter">{{ idx + 1 }}</Text>
 
-					<img :src="rollup.logo" />
+						<img :src="rollup.logo" />
 
-					<Flex direction="column" gap="6">
-						<Text size="14" weight="600" color="primary"> {{ rollup.name }} </Text>
-						<Text size="13" weight="500" color="tertiary">
-							{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toRelative() }}
-						</Text>
+						<Flex direction="column" gap="6">
+							<Text size="14" weight="600" color="primary"> {{ rollup.name }} </Text>
+							<Text size="13" weight="500" color="tertiary">
+								{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toRelative() }}
+							</Text>
+						</Flex>
 					</Flex>
-				</Flex>
 
-				<Text size="14" weight="600" color="primary">{{ formatBytes(rollup.size) }}</Text>
-			</Flex>
+					<Text size="14" weight="600" color="primary">{{ formatBytes(rollup.size) }}</Text>
+				</Flex>
+			</a>
 
 			<a v-if="rollups.length > 0" href="https://celenium.io/rollups" target="_blank">
 				<Flex justify="center" align="center" gap="6" :class="$style.btn">
